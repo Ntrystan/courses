@@ -9,7 +9,8 @@ from torch.autograd import Variable
 import operator
 
 def unit_prefix(x, n=1):
-    for i in range(n): x = x.unsqueeze(0)
+    for _ in range(n):
+        x = x.unsqueeze(0)
     return x
 
 def align(x, y, start_dim=2):
