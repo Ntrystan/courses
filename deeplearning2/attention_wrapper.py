@@ -14,7 +14,7 @@ class Attention(Layer):
 
 
     def all_attrs(self, name):
-        return sum([getattr(layer, name, []) for layer in self.layers], [])
+        return sum((getattr(layer, name, []) for layer in self.layers), [])
 
 
     def w(self, dims, init, name):
@@ -24,7 +24,7 @@ class Attention(Layer):
     def build(self, input_shape):
         self.enc_shape, self.dec_shape = input_shape
         assert len(self.enc_shape) >= 3
-        self.layers = [self.fn_rnn() for i in range(self.nlayers)]
+        self.layers = [self.fn_rnn() for _ in range(self.nlayers)]
         nb_samples, nb_time, nb_dims = self.dec_shape
         l0 = self.layers[0]
 
@@ -82,8 +82,7 @@ class Attention(Layer):
         l0 = self.layers[0]
         enc_output, dec_input = x
 
-        if l0.stateful: initial_states = l0.states
-        else: initial_states = l0.get_initial_states(dec_input)
+        initial_states = l0.states if l0.stateful else l0.get_initial_states(dec_input)
         constants = l0.get_constants(dec_input)
         constants = self.get_constants(enc_output, constants)
         preprocessed_input = l0.preprocess_input(dec_input)
@@ -93,8 +92,6 @@ class Attention(Layer):
              constants=constants, unroll=l0.unroll, input_length=self.dec_shape[1])
         if l0.stateful:
             self.updates = []
-            for i in range(len(states)):
-                self.updates.append((l0.states[i], states[i]))
-
+            self.updates.extend((l0.states[i], states[i]) for i in range(len(states)))
         return outputs if l0.return_sequences else last_output
 

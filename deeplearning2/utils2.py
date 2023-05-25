@@ -99,8 +99,8 @@ def plot_train(hist):
         meas='loss'
         loc='upper right'
     plt.plot(hist.history[meas])
-    plt.plot(hist.history['val_'+meas])
-    plt.title('model '+meas)
+    plt.plot(hist.history[f'val_{meas}'])
+    plt.title(f'model {meas}')
     plt.ylabel(meas)
     plt.xlabel('epoch')
     plt.legend(['train', 'validation'], loc=loc)

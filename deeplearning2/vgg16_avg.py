@@ -39,11 +39,10 @@ def VGG16_Avg(include_top=True, weights='imagenet',
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)
+    elif K.is_keras_tensor(input_tensor):
+        img_input = input_tensor
     else:
-        if not K.is_keras_tensor(input_tensor):
-            img_input = Input(tensor=input_tensor, shape=input_shape)
-        else:
-            img_input = input_tensor
+        img_input = Input(tensor=input_tensor, shape=input_shape)
     # Block 1
     x = Convolution2D(64, 3, 3, activation='relu', border_mode='same', name='block1_conv1')(img_input)
     x = Convolution2D(64, 3, 3, activation='relu', border_mode='same', name='block1_conv2')(x)
@@ -81,10 +80,7 @@ def VGG16_Avg(include_top=True, weights='imagenet',
 
     # Ensure that the model takes into account
     # any potential predecessors of `input_tensor`.
-    if input_tensor is not None:
-        inputs = get_source_inputs(input_tensor)
-    else:
-        inputs = img_input
+    inputs = img_input if input_tensor is None else get_source_inputs(input_tensor)
     # Create model.
     model = Model(inputs, x, name='vgg16')
 
